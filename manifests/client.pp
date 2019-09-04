@@ -20,6 +20,7 @@ class nfs::client (
   $nfs_v4                     = $::nfs::nfs_v4_client,
   $nfs_v4_mount_root          = $::nfs::nfs_v4_mount_root,
   $nfs_v4_idmap_domain        = $::nfs::nfs_v4_idmap_domain,
+  $nfstag                     = $::nfs::nfs_v4_root_export_tag
 ) {
 
   anchor {'nfs::client::begin': }
@@ -34,6 +35,7 @@ class nfs::client (
   # service(s)
   class { '::nfs::client::service': }
 
+
   if $ensure == 'present' {
     # we need the software before configuring it
     Anchor['nfs::client::begin']
@@ -43,6 +45,9 @@ class nfs::client (
     Class['nfs::client::package'] -> Class['nfs::client::service']
     Class['nfs::client::config']  -> Class['nfs::client::service']
     Class['nfs::client::service'] -> Anchor['nfs::client::end']
+    if $nfstag{
+      Nfs::Client::Mount <<| nfstag == $nfstag |>>
+    }
   } else {
     # make sure all services are getting stopped before software removal
     Anchor['nfs::client::begin']
