@@ -47,7 +47,7 @@ class nfs::client (
     Class['nfs::client::config']  -> Class['nfs::client::service']
     Class['nfs::client::service'] -> Anchor['nfs::client::end']
     if $nfstag{
-      Nfs::Client::Mount{
+      Nfs::Client::Mount <<||>>{
         share => $share,
         mount => $nfs_v4_mount_root,
         nfstag => $nfstag
