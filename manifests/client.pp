@@ -20,7 +20,8 @@ class nfs::client (
   $nfs_v4                     = $::nfs::nfs_v4_client,
   $nfs_v4_mount_root          = $::nfs::nfs_v4_mount_root,
   $nfs_v4_idmap_domain        = $::nfs::nfs_v4_idmap_domain,
-  $nfstag                     = $::nfs::nfs_v4_root_export_tag
+  $nfstag                     = $::nfs::nfs_v4_root_export_tag,
+  $share                      = $::nfs::nfs_v4_export_root
 ) {
 
   anchor {'nfs::client::begin': }
@@ -46,7 +47,11 @@ class nfs::client (
     Class['nfs::client::config']  -> Class['nfs::client::service']
     Class['nfs::client::service'] -> Anchor['nfs::client::end']
     if $nfstag{
-      Nfs::Client::Mount <<| nfstag == $nfstag |>>
+      Nfs::Client::Mount{
+        share => $share,
+        mount => $nfs_v4_mount_root,
+        nfstag => $nfstag
+      }
     }
   } else {
     # make sure all services are getting stopped before software removal
